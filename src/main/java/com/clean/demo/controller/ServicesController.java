@@ -58,7 +58,12 @@ public class ServicesController {
     }
 
     @DeleteMapping("/{id}")
-    void deleteEmployee(@PathVariable Long id) {
+    void deleteEService(@PathVariable Long id) {
         serviceRepository.deleteById(id);
+    }
+
+    @DeleteMapping("")
+    void deleteEServices(@RequestBody Iterable<Long> ids) {
+        serviceRepository.deleteAllById(ids);
     }
 }

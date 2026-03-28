@@ -16,6 +16,18 @@ public class ServiceService {
     @Autowired
     private ImageRepository imageRepository;
 
+    public void deleteImageFromService(Long imageId) {
+        Image image = imageRepository.findById(imageId).orElseThrow();
+
+        serviceRepository.findAllByFeaturedImage(image)
+                .forEach(service -> service.setFeaturedImage(null));
+
+        serviceRepository.findAllByImagesGalleryContains(image)
+                .forEach(service -> service.getImages().remove(image));
+
+        imageRepository.delete(image);
+    }
+
     public Service updateService(Long id, Service newService) {
         return serviceRepository.findById(id)
                 .map(service -> {
