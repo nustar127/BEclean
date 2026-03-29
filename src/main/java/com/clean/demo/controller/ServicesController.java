@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.entity.Service;
+import com.clean.demo.entity.ServiceRequirement;
 import com.clean.demo.repository.ServiceRepository;
+import com.clean.demo.repository.ServiceRequirementRepository;
 import com.clean.demo.service.ServiceService;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +32,9 @@ public class ServicesController {
 
     @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+    private ServiceRequirementRepository serviceReqRepository;
 
     @GetMapping("")
     private Iterable<Service> findAll() {
@@ -65,5 +70,31 @@ public class ServicesController {
     @DeleteMapping("")
     void deleteEServices(@RequestBody Iterable<Long> ids) {
         serviceRepository.deleteAllById(ids);
+    }
+
+    @GetMapping("/requirements")
+    private Iterable<ServiceRequirement> findAllRequqrements() {
+        return serviceReqRepository.findAll();
+    }
+
+    @PostMapping("/requirements")
+    public ServiceRequirement newServiceReq(@RequestBody ServiceRequirement serviceRequirement) {
+        return serviceReqRepository.save(serviceRequirement);
+    }
+
+    @PutMapping("/requirements/{id}")
+    public ServiceRequirement changeServiceReq(@RequestBody Double amount, @PathVariable Long id) {
+        return serviceReqRepository.findById(id)
+                .map(serviceRequirement -> {
+                    serviceRequirement.setRequiredAmount(amount);
+                    return serviceReqRepository.save(serviceRequirement);
+                }).orElseGet(() -> {
+                    return null;
+                });
+    }
+
+    @DeleteMapping("/requirements/{id}")
+    void deleteServiceReq(@PathVariable Long id) {
+        serviceReqRepository.deleteById(id);
     }
 }

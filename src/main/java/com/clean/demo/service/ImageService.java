@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clean.demo.entity.Image;
 import com.clean.demo.repository.ImageRepository;
 import com.clean.demo.repository.ServiceRepository;
+import com.clean.demo.repository.InventoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class ImageService {
+    @Autowired
+    private InventoryRepository inventoryRepository;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -22,6 +25,9 @@ public class ImageService {
     private ImageRepository imageRepository;
 
     public void deleteImageFromService(Image image) {
+        inventoryRepository.findAllByFeaturedImage(image)
+                .forEach(service -> service.setFeaturedImage(null));
+
         serviceRepository.findAllByFeaturedImage(image)
                 .forEach(service -> service.setFeaturedImage(null));
 
