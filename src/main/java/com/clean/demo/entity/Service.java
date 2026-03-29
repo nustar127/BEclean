@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,9 @@ public class Service {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "type")
+    private String type;
+
     @Column(name = "price")
     private Float price;
 
@@ -48,6 +52,10 @@ public class Service {
 
     @Column(name = "depedens_on_area")
     private @Nullable Integer depedensOnArea;
+
+    @JsonIgnoreProperties("service")
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    private List<ServiceRequirement> requirments = new ArrayList<>();
 
     public Long getId() {
         return this.id;
@@ -112,5 +120,21 @@ public class Service {
 
     public void setDepedensOnArea(@Nullable Integer depedensOnArea) {
         this.depedensOnArea = depedensOnArea;
+    }
+
+    public List<ServiceRequirement> getRequirments() {
+        return requirments;
+    }
+
+    public void setRequirments(List<ServiceRequirement> requirments) {
+        this.requirments = requirments;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
