@@ -136,7 +136,6 @@ public class ImageController {
                 }
 
                 Files.delete(uploadPath.resolve(filename));
-                // imageRepository.deleteById(imageId);
             }
         } catch (IOException e) {
 
