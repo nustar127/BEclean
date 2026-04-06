@@ -78,8 +78,8 @@ public class ServicesController {
     }
 
     @PostMapping("/requirements")
-    public ServiceRequirement newServiceReq(@RequestBody ServiceRequirement serviceRequirement) {
-        return serviceReqRepository.save(serviceRequirement);
+    public Iterable<ServiceRequirement> newServiceReq(@RequestBody Iterable<ServiceRequirement> serviceRequirements) {
+        return serviceReqRepository.saveAll(serviceRequirements);
     }
 
     @PutMapping("/requirements/{id}")
