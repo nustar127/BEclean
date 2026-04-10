@@ -1,5 +1,6 @@
 package com.clean.demo.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +49,7 @@ public class AuthenticationService {
                 return new JwtAuthenticationResponse(jwt, userDto);
         }
 
-        public JwtAuthenticationResponse signIn(SignInRequest request) {
+        public ResponseEntity<?> signIn(SignInRequest request) {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                                 request.getUsername(),
                                 request.getPassword()));
@@ -69,6 +70,7 @@ public class AuthenticationService {
                                 .build();
 
                 var jwt = jwtService.generateToken(userDetails);
-                return new JwtAuthenticationResponse(jwt, userDto);
+                return ResponseEntity
+                                .ok(new JwtAuthenticationResponse(jwt, userDto));
         }
 }
