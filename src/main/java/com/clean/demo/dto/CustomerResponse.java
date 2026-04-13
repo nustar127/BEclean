@@ -1,29 +1,28 @@
 package com.clean.demo.dto;
 
-import com.clean.demo.entity.User;
+import com.clean.demo.entity.Customer;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-public abstract class UserResponse {
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String username;
-    private String email;
-    private String role;
-    private String phone;
+@EqualsAndHashCode(callSuper = true)
+public class CustomerResponse extends UserResponse {
+    private String discountCard;
+    private String address;
 
-    public static UserResponse createUser(User user) {
+    public static CustomerResponse createCustomer(Customer user) {
         return CustomerResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .address(user.getAddress())
                 .phone(user.getPhone())
+                .discountCard(user.getDiscountCard())
                 .role(user.getRole().name())
                 .build();
     }
