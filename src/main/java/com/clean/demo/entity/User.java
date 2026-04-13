@@ -9,18 +9,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +36,8 @@ public class User implements UserDetails {
     private String username;
 
     private String password;
+
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

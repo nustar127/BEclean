@@ -9,9 +9,10 @@ import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.JwtAuthenticationResponse;
 import com.clean.demo.dto.SignInRequest;
 import com.clean.demo.dto.SignUpRequest;
+import com.clean.demo.dto.SignUpCustomerRequest;
+import com.clean.demo.dto.SignUpCleanerRequest;
 import com.clean.demo.service.AuthenticationService;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +24,21 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthenticationService authenticationService;
 
-    @Operation(summary = "reg")
     @PostMapping("/sign-up")
     public ApiResponse<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
         return authenticationService.signUp(request);
     }
 
-    @Operation(summary = "auto")
+    @PostMapping("/sign-up/customer")
+    public ApiResponse<JwtAuthenticationResponse> signUpCustomer(@RequestBody @Valid SignUpCustomerRequest request) {
+        return authenticationService.signUpCustomer(request);
+    }
+
+    @PostMapping("/sign-up/cleaner")
+    public ApiResponse<JwtAuthenticationResponse> signUpCleaner(@RequestBody @Valid SignUpCleanerRequest request) {
+        return authenticationService.signUpCleaner(request);
+    }
+
     @PostMapping("/sign-in")
     public ApiResponse<JwtAuthenticationResponse> signIn(@RequestBody @Valid SignInRequest request) {
         return authenticationService.signIn(request);

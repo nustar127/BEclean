@@ -1,6 +1,5 @@
 package com.clean.demo.service;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,13 +7,19 @@ import org.springframework.stereotype.Service;
 
 import com.clean.demo.dto.JwtAuthenticationResponse;
 import com.clean.demo.dto.SignInRequest;
+import com.clean.demo.dto.SignUpCleanerRequest;
+import com.clean.demo.dto.SignUpCustomerRequest;
 import com.clean.demo.dto.SignUpRequest;
 import com.clean.demo.dto.UserResponse;
+import com.clean.demo.entity.Customer;
 import com.clean.demo.entity.Role;
+import com.clean.demo.entity.Cleaner;
 import com.clean.demo.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import com.clean.demo.dto.ApiResponse;
+import com.clean.demo.dto.CleanerResponse;
+import com.clean.demo.dto.CustomerResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -32,22 +37,54 @@ public class AuthenticationService {
                                 .firstName(request.getFirstName())
                                 .lastName(request.getLastName())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .role(Role.ROLE_USER)
-                                .build();
-
-                UserResponse userDto = UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .email(user.getEmail())
-                                .role(user.getRole().name())
+                                .role(Role.ROLE_ADMIN)
                                 .build();
 
                 userService.create(user);
+                UserResponse userDto = UserResponse.createUser(user);
 
                 var jwt = jwtService.generateToken(user);
                 return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed up");
+        }
+
+        public ApiResponse<JwtAuthenticationResponse> signUpCustomer(SignUpCustomerRequest request) {
+
+                var user = Customer.builder()
+                                .username(request.getUsername())
+                                .email(request.getEmail())
+                                .firstName(request.getFirstName())
+                                .lastName(request.getLastName())
+                                .phone(request.getPhone())
+                                .address(request.getAddress())
+                                .password(passwordEncoder.encode(request.getPassword()))
+                                .role(Role.ROLE_USER)
+                                .build();
+
+                userService.create(user);
+                CustomerResponse customerDto = CustomerResponse.createCustomer(user);
+
+                var jwt = jwtService.generateToken(user);
+                return ApiResponse.success(new JwtAuthenticationResponse(jwt, customerDto), "Customer signed up");
+        }
+
+        public ApiResponse<JwtAuthenticationResponse> signUpCleaner(SignUpCleanerRequest request) {
+
+                var user = Cleaner.builder()
+                                .username(request.getUsername())
+                                .email(request.getEmail())
+                                .firstName(request.getFirstName())
+                                .lastName(request.getLastName())
+                                .phone(request.getPhone())
+                                .rating(request.getRating())
+                                .password(passwordEncoder.encode(request.getPassword()))
+                                .role(Role.ROLE_CLEANER)
+                                .build();
+
+                userService.create(user);
+                CleanerResponse customerDto = CleanerResponse.createCustomer(user);
+
+                var jwt = jwtService.generateToken(user);
+                return ApiResponse.success(new JwtAuthenticationResponse(jwt, customerDto), "Cleaner signed up");
         }
 
         public ApiResponse<JwtAuthenticationResponse> signIn(SignInRequest request) {
@@ -61,16 +98,15 @@ public class AuthenticationService {
 
                 var user = (User) userDetails;
 
-                UserResponse userDto = UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .email(user.getEmail())
-                                .role(user.getRole().name())
-                                .build();
+                UserResponse responseDto;
+
+                if (user instanceof Customer customer) {
+                        responseDto = CustomerResponse.createCustomer(customer);
+                } else {
+                        responseDto = UserResponse.createUser(user);
+                }
 
                 var jwt = jwtService.generateToken(userDetails);
-                return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed in");
+                return ApiResponse.success(new JwtAuthenticationResponse(jwt, responseDto), "User signed in");
         }
 }
