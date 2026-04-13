@@ -1,11 +1,11 @@
 package com.clean.demo.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.JwtAuthenticationResponse;
 import com.clean.demo.dto.SignInRequest;
 import com.clean.demo.dto.SignUpRequest;
@@ -25,13 +25,13 @@ public class AuthController {
 
     @Operation(summary = "reg")
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@RequestBody @Valid SignUpRequest request) {
+    public ApiResponse<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
         return authenticationService.signUp(request);
     }
 
     @Operation(summary = "auto")
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequest request) {
+    public ApiResponse<JwtAuthenticationResponse> signIn(@RequestBody @Valid SignInRequest request) {
         return authenticationService.signIn(request);
     }
 }

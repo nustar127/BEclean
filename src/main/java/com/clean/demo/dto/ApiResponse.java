@@ -1,7 +1,5 @@
 package com.clean.demo.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
@@ -14,9 +12,13 @@ public class ApiResponse<T> {
     private boolean ok;
     private int status;
     private T data;
-    private List<String> errors;
-    private List<String> messages;
+    private String error;
+    private String message;
     private PaginationInfo pagination;
+
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return ApiResponse.<T>builder().ok(true).status(200).data(data).message(message).build();
+    }
 
     @Data
     @Builder
