@@ -14,6 +14,7 @@ import com.clean.demo.entity.Role;
 import com.clean.demo.entity.User;
 
 import lombok.RequiredArgsConstructor;
+import com.clean.demo.dto.ApiResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class AuthenticationService {
         private final PasswordEncoder passwordEncoder;
         private final AuthenticationManager authenticationManager;
 
-        public JwtAuthenticationResponse signUp(SignUpRequest request) {
+        public ApiResponse<JwtAuthenticationResponse> signUp(SignUpRequest request) {
 
                 var user = User.builder()
                                 .username(request.getUsername())
@@ -46,10 +47,10 @@ public class AuthenticationService {
                 userService.create(user);
 
                 var jwt = jwtService.generateToken(user);
-                return new JwtAuthenticationResponse(jwt, userDto);
+                return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed up");
         }
 
-        public ResponseEntity<?> signIn(SignInRequest request) {
+        public ApiResponse<JwtAuthenticationResponse> signIn(SignInRequest request) {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                                 request.getUsername(),
                                 request.getPassword()));
@@ -70,7 +71,6 @@ public class AuthenticationService {
                                 .build();
 
                 var jwt = jwtService.generateToken(userDetails);
-                return ResponseEntity
-                                .ok(new JwtAuthenticationResponse(jwt, userDto));
+                return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed in");
         }
 }

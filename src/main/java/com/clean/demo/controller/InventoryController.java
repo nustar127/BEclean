@@ -1,6 +1,5 @@
 package com.clean.demo.controller;
 
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 //import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.entity.Inventory;
 import com.clean.demo.repository.InventoryRepository;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,32 +22,37 @@ public class InventoryController {
     private InventoryRepository inventoryRepository;
 
     @GetMapping("")
-    private Iterable<Inventory> findAll() {
-        return inventoryRepository.findAll();
+    public ApiResponse<Iterable<Inventory>> findAll() {
+        return ApiResponse.success(inventoryRepository.findAll(), "Founded");
     }
 
     @GetMapping("/{id}")
-    public Optional<Inventory> findById(@PathVariable("id") Long id) {
-        return inventoryRepository.findById(id);
+    public ApiResponse<Inventory> findById(@PathVariable("id") Long id) {
+        return inventoryRepository.findById(id)
+                .map(inventory -> ApiResponse.success(inventory, "Founded"))
+                .orElseThrow(() -> new RuntimeException("Inventory item not found with id: " + id));
     }
 
     @PutMapping("/{id}")
-    public Inventory newInventory(@PathVariable("id") Long id, @RequestBody Inventory inventory) {
-        return inventoryRepository.save(inventory);
+    public ApiResponse<Inventory> updateInventory(@PathVariable("id") Long id, @RequestBody Inventory inventory) {
+        inventory.setId(id); 
+        return ApiResponse.success(inventoryRepository.save(inventory), "Item updated successfully");
     }
 
     @PostMapping("")
-    public Inventory newInventory(@RequestBody Inventory inventory) {
-        return inventoryRepository.save(inventory);
+    public ApiResponse<Inventory> createInventory(@RequestBody Inventory inventory) {
+        return ApiResponse.success(inventoryRepository.save(inventory), "Item created successfully");
     }
 
     @DeleteMapping("/{id}")
-    void deleteInventory(@PathVariable Long id) {
+    public ApiResponse<Void> deleteInventory(@PathVariable Long id) {
         inventoryRepository.deleteById(id);
+        return ApiResponse.success(null, "Item deleted successfully");
     }
 
     @DeleteMapping("")
-    void deleteInventories(@RequestBody Iterable<Long> ids) {
+    public ApiResponse<Void> deleteInventories(@RequestBody Iterable<Long> ids) {
         inventoryRepository.deleteAllById(ids);
+        return ApiResponse.success(null, "Selected items deleted successfully");
     }
 }
