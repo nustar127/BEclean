@@ -1,5 +1,7 @@
 package com.clean.demo.service;
 
+import java.util.List;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,23 +31,23 @@ public class AuthenticationService {
         private final PasswordEncoder passwordEncoder;
         private final AuthenticationManager authenticationManager;
 
-        public ApiResponse<JwtAuthenticationResponse> signUp(SignUpRequest request) {
+        // public ApiResponse<JwtAuthenticationResponse> signUp(SignUpRequest request) {
 
-                var user = User.builder()
-                                .username(request.getUsername())
-                                .email(request.getEmail())
-                                .firstName(request.getFirstName())
-                                .lastName(request.getLastName())
-                                .password(passwordEncoder.encode(request.getPassword()))
-                                .role(Role.ROLE_ADMIN)
-                                .build();
+        //         var user = User.builder()
+        //                         .username(request.getUsername())
+        //                         .email(request.getEmail())
+        //                         .firstName(request.getFirstName())
+        //                         .lastName(request.getLastName())
+        //                         .password(passwordEncoder.encode(request.getPassword()))
+        //                         .role(Role.ROLE_ADMIN)
+        //                         .build();
 
-                userService.create(user);
-                UserResponse userDto = UserResponse.createUser(user);
+        //         userService.create(user);
+        //         UserResponse userDto = UserResponse.createUser(user);
 
-                var jwt = jwtService.generateToken(user);
-                return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed up");
-        }
+        //         var jwt = jwtService.generateToken(user);
+        //         return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed up");
+        // }
 
         public ApiResponse<JwtAuthenticationResponse> signUpCustomer(SignUpCustomerRequest request) {
 
@@ -57,7 +59,7 @@ public class AuthenticationService {
                                 .phone(request.getPhone())
                                 .address(request.getAddress())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .role(Role.ROLE_USER)
+                                .roles(List.of(Role.ROLE_USER))
                                 .build();
 
                 userService.create(user);
@@ -77,7 +79,7 @@ public class AuthenticationService {
                                 .phone(request.getPhone())
                                 .rating(request.getRating())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .role(Role.ROLE_CLEANER)
+                                .roles(List.of(Role.ROLE_USER))
                                 .build();
 
                 userService.create(user);

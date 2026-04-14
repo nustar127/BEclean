@@ -23,7 +23,10 @@ public class CustomerResponse extends UserResponse {
                 .address(user.getAddress())
                 .phone(user.getPhone())
                 .discountCard(user.getDiscountCard())
-                .role(user.getRole().name())
+                .roles(
+                        user.getRoles().stream()
+                                .map(Enum::name)
+                                .toList())
                 .build();
     }
 }

@@ -40,8 +40,8 @@ public class User implements UserDetails {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @Column(name = "roles", nullable = false)
+    private List<Role> roles;
 
     public Long getId() {
         return id;
@@ -91,9 +91,15 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return roles.stream()
+                .map(r -> new SimpleGrantedAuthority(r.name()))
+                .toList();
     }
 
     @Override

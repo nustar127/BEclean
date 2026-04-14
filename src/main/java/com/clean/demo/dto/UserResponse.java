@@ -1,5 +1,7 @@
 package com.clean.demo.dto;
 
+import java.util.List;
+
 import com.clean.demo.entity.User;
 
 import lombok.Data;
@@ -7,24 +9,27 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-public abstract class UserResponse {
+public class UserResponse {
     private Long id;
     private String firstName;
     private String lastName;
     private String username;
     private String email;
-    private String role;
+    private List<String> roles;
     private String phone;
 
     public static UserResponse createUser(User user) {
-        return CustomerResponse.builder()
+        return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .role(user.getRole().name())
+                .roles(
+                        user.getRoles().stream()
+                                .map(Enum::name)
+                                .toList())
                 .build();
     }
 }
