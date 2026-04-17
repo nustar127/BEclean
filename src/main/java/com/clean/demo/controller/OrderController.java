@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
+import com.clean.demo.dto.OrderCheckRequest;
 import com.clean.demo.entity.Cleaner;
 import com.clean.demo.entity.Order;
 import com.clean.demo.entity.OrderStatus;
@@ -47,14 +48,26 @@ public class OrderController {
         return ApiResponse.success(orderRepository.save(updatedOrder), "Cleaners updated");
     }
 
+    @PostMapping("/{id}/claim")
+    public ApiResponse<Order> claimOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
+        Order updatedOrder = orderService.addCleaner(id, cleaner);
+        return ApiResponse.success(orderRepository.save(updatedOrder), "Order claimed by cleaner");
+    }
+
     @PostMapping("/{id}/change-status")
     public ApiResponse<Order> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatus status) {
         Order updatedOrder = orderService.changeStatus(id, status);
         return ApiResponse.success(orderRepository.save(updatedOrder), "Status updated");
     }
 
+    @GetMapping("/available-slots")
+    public ApiResponse<?> availableSlots(@RequestBody OrderCheckRequest request) {
+        return ApiResponse.success(orderService.getAvailableSlots(request), "Available slots calculated");
+    }
+
     @PostMapping("")
     public ApiResponse<Order> newOrder(@RequestBody Order order) {
+        order.recalculateTotals();
         return ApiResponse.success(orderRepository.save(order), "Order created");
     }
 }
