@@ -3,6 +3,7 @@ package com.clean.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,12 +38,13 @@ public class ServicesController {
     private ServiceRequirementRepository serviceReqRepository;
 
     @GetMapping("")
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("permitAll()") 
     public ApiResponse<Iterable<Service>> findAll() {
         return ApiResponse.success(serviceRepository.findAll(), "Founded");
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()") 
     public ApiResponse<Service> findById(@PathVariable("id") Long id) {
         return serviceRepository.findById(id)
                 .map(service -> ApiResponse.success(service, "Founded"))
@@ -50,39 +52,46 @@ public class ServicesController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Service> newService(@RequestBody Service service) {
         return ApiResponse.success(serviceRepository.save(service), "Service created");
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Service> changeService(@RequestBody Service newService, @PathVariable Long id) {
         Service updated = serviceService.updateService(id, newService);
         return ApiResponse.success(updated, "Service updated successfully");
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteService(@PathVariable Long id) {
         serviceRepository.deleteById(id);
         return ApiResponse.success(null, "Service deleted");
     }
 
     @DeleteMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteServices(@RequestBody List<Long> ids) {
         serviceRepository.deleteAllById(ids);
         return ApiResponse.success(null, "Services deleted");
     }
 
     @GetMapping("/requirements")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Iterable<ServiceRequirement>> findAllRequirements() {
         return ApiResponse.success(serviceReqRepository.findAll(), "Founded");
     }
 
     @PostMapping("/requirements")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Iterable<ServiceRequirement>> newServiceReq(@RequestBody List<ServiceRequirement> requirements) {
         return ApiResponse.success(serviceReqRepository.saveAll(requirements), "Requirements saved");
     }
 
     @PutMapping("/requirements/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ServiceRequirement> changeServiceReq(@RequestBody Double amount, @PathVariable Long id) {
         return serviceReqRepository.findById(id)
                 .map(req -> {
@@ -93,6 +102,7 @@ public class ServicesController {
     }
 
     @DeleteMapping("/requirements/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteServiceReq(@PathVariable Long id) {
         serviceReqRepository.deleteById(id);
         return ApiResponse.success(null, "Requirement deleted");

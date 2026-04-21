@@ -23,11 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthenticationService authenticationService;
 
-    // @PostMapping("/sign-up")
-    // public ApiResponse<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
-    //     return authenticationService.signUp(request);
-    // }
-
     @PostMapping("/sign-up/customer")
     public ApiResponse<JwtAuthenticationResponse> signUpCustomer(@RequestBody @Valid SignUpCustomerRequest request) {
         return authenticationService.signUpCustomer(request);

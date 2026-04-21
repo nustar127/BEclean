@@ -30,6 +30,7 @@ public class User extends Person implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "roles", nullable = false)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
 
     @Override

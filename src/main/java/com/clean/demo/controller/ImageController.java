@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 //import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,11 +48,13 @@ public class ImageController {
     private ImageRepository imageRepository;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Iterable<Image>> findAll() {
         return ApiResponse.success(imageRepository.findAll(), "Images founded");
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Image> findById(@PathVariable("id") Long imageId) {
         return imageRepository.findById(imageId)
                 .map(image -> ApiResponse.success(image, "Image founded"))
@@ -59,6 +62,7 @@ public class ImageController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Image> uploadImage(@RequestParam("file") MultipartFile file, @Nullable String alt) {
         try {
             String filePath = saveImage(file);
@@ -88,6 +92,7 @@ public class ImageController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Image> changeImage(@RequestBody String alt, @PathVariable("id") Long imageId) {
         Image updated = imageRepository.findById(imageId)
                 .map(image -> {
@@ -100,6 +105,7 @@ public class ImageController {
     }
 
     @DeleteMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     private ApiResponse<Void> deleteByIds(@RequestBody Iterable<Long> ids) {
         try {
             for (Long imageId : ids) {
@@ -118,6 +124,7 @@ public class ImageController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteImage(@PathVariable("id") Long imageId) {
         try {
             Image image = imageRepository.findById(imageId)
