@@ -78,7 +78,7 @@ public class AuthenticationService {
                                 .phone(request.getPhone())
                                 .rating(request.getRating())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .roles(List.of(Role.ROLE_USER))
+                                .roles(List.of(Role.ROLE_CLEANER))
                                 .build();
 
                 userService.create(user);

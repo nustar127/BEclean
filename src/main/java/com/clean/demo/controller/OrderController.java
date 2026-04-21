@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.OrderCheckRequest;
+import com.clean.demo.dto.OrderClaimRequest;
 import com.clean.demo.dto.OrderCreationRequest;
 import com.clean.demo.dto.OrderResponse;
-import com.clean.demo.entity.Cleaner;
-import com.clean.demo.entity.OrderStatus;
+import com.clean.demo.dto.OrderStatusChangeRequest;
 import com.clean.demo.service.OrderService;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -41,19 +41,38 @@ public class OrderController {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
     }
 
-    @PostMapping("/{id}/add-cleaner")
-    public ApiResponse<OrderResponse> addCleanerToOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
-        return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, cleaner)), "Cleaners updated");
+    @GetMapping("/customer/{customerId}")
+    public ApiResponse<Iterable<OrderResponse>> findByCustomerId(@PathVariable("customerId") Long customerId) {
+        Iterable<OrderResponse> orders = orderService.findByCustomerId(customerId).stream()
+                .map(OrderResponse::fromOrder)
+                .toList();
+        return ApiResponse.success(orders, "Founded");
+    }
+
+    @GetMapping("/cleaner/{cleanerId}")
+    public ApiResponse<Iterable<OrderResponse>> findByCleanerId(@PathVariable("cleanerId") Long cleanerId) {
+        Iterable<OrderResponse> orders = orderService.findByCleanerId(cleanerId).stream()
+                .map(OrderResponse::fromOrder)
+                .toList();
+        return ApiResponse.success(orders, "Founded");
+    }
+
+    @GetMapping("/unassigned/{cleanerId}")
+    public ApiResponse<Iterable<OrderResponse>> findOrdersWithUnassignedCleanerSlots(@PathVariable("cleanerId") Long cleanerId) {
+        Iterable<OrderResponse> orders = orderService.findOrdersWithUnassignedCleanerSlots(cleanerId).stream()
+                .map(OrderResponse::fromOrder)
+                .toList();
+        return ApiResponse.success(orders, "Founded");
     }
 
     @PostMapping("/{id}/claim")
-    public ApiResponse<OrderResponse> claimOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
-        return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, cleaner)), "Order claimed by cleaner");
+    public ApiResponse<OrderResponse> claimOrder(@PathVariable("id") Long id, @RequestBody OrderClaimRequest request) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, request.getCleanerId())), "Order claimed by cleaner");
     }
 
     @PostMapping("/{id}/change-status")
-    public ApiResponse<OrderResponse> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatus status) {
-        return ApiResponse.success(OrderResponse.fromOrder(orderService.changeStatus(id, status)), "Status updated");
+    public ApiResponse<OrderResponse> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatusChangeRequest request) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.changeStatus(id, request.getStatus())), "Status updated");
     }
 
     @PostMapping("/available-slots")

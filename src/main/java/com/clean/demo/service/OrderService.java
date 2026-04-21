@@ -17,6 +17,7 @@ import com.clean.demo.entity.Service;
 import com.clean.demo.entity.CartLine;
 import com.clean.demo.entity.Cleaner;
 import com.clean.demo.entity.Person;
+import com.clean.demo.repository.CleanerRepository;
 import com.clean.demo.repository.OrderRepository;
 import com.clean.demo.repository.ServiceRepository;
 import com.clean.demo.repository.PersonRepository;
@@ -39,6 +40,8 @@ public class OrderService {
     @Autowired
     private PersonRepository personRepository;
 
+    @Autowired
+    private CleanerRepository cleanerRepository;
 
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
@@ -50,6 +53,30 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
+    public List<Order> findByCustomerId(Long customerId) {
+        return orderRepository.findByCustomerId(customerId);
+    }
+
+    public List<Order> findByCleanerId(Long cleanerId) {
+        return orderRepository.findByCleanersId(cleanerId);
+    }
+
+    public List<Order> findOrdersWithUnassignedCleanerSlots(Long cleanerId) {
+        Cleaner cleaner = cleanerRepository.findById(cleanerId)
+                .orElseThrow(() -> new RuntimeException("Cleaner not found: " + cleanerId));
+
+        return findAll().stream()
+                .filter(Order::isClaimable)
+                .filter(order -> isCleanerAvailableForOrder(cleaner, order))
+                .toList();
+    }
+
+    public Order addCleaner(Long orderId, Long cleanerId) {
+        Cleaner cleaner = cleanerRepository.findById(cleanerId)
+                .orElseThrow(() -> new RuntimeException("Cleaner not found: " + cleanerId));
+        return addCleaner(orderId, cleaner);
+    }
+
     public Order addCleaner(Long id, Cleaner cleaner) {
         return orderRepository.findById(id)
                 .map(order -> {
@@ -58,7 +85,7 @@ public class OrderService {
                     }
                     order.addCleaner(cleaner);
                     if (order.getRemainingCleanerSlots() == 0) {
-                        order.setStatus(OrderStatus.ACCEPTED);
+                        order.setStatus(OrderStatus.CONFIRMED);
                     }
                     return orderRepository.save(order);
                 })
@@ -99,7 +126,8 @@ public class OrderService {
                 ? tempOrder.getRequestedCleanerCount()
                 : 1;
 
-        if (requested > MAX_AVAILABLE_CLEANERS) {
+        long totalCleanerCount = cleanerRepository.count();
+        if (totalCleanerCount == 0 || requested > totalCleanerCount || requested > MAX_AVAILABLE_CLEANERS) {
             return new ArrayList<>();
         }
 
@@ -113,18 +141,95 @@ public class OrderService {
 
         List<CleanerAvailabilitySlot> slots = new ArrayList<>();
         for (int day = 0; day < DAYS_IN_MONTH; day++) {
-            LocalDateTime currentDayStart = firstSlotStart.plusDays(day).withHour(WORKDAY_START_HOUR).withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime currentDayStart = day == 0
+                    ? normalizeFirstSlotStart(firstSlotStart)
+                    : firstSlotStart.plusDays(day).withHour(WORKDAY_START_HOUR).withMinute(0).withSecond(0).withNano(0);
             LocalDateTime currentDayEnd = currentDayStart.withHour(WORKDAY_END_HOUR);
 
             LocalDateTime slotStart = currentDayStart;
             while (!slotStart.plusMinutes(durationWithTravel).isAfter(currentDayEnd)) {
                 LocalDateTime slotEnd = slotStart.plusMinutes(duration);
-                slots.add(new CleanerAvailabilitySlot(slotStart, slotEnd, MAX_AVAILABLE_CLEANERS - requested, totalPrice));
+                int availableCleaners = countAvailableCleaners(slotStart, durationWithTravel, totalCleanerCount);
+                if (availableCleaners >= requested) {
+                    slots.add(new CleanerAvailabilitySlot(slotStart, slotEnd, availableCleaners, totalPrice));
+                }
                 slotStart = slotStart.plusMinutes(durationWithTravel);
             }
         }
 
-        return slots;}
+        return slots;
+    }
+
+    private LocalDateTime normalizeFirstSlotStart(LocalDateTime firstSlotStart) {
+        LocalDateTime normalized = firstSlotStart.withSecond(0).withNano(0);
+        if (normalized.getHour() < WORKDAY_START_HOUR) {
+            return normalized.withHour(WORKDAY_START_HOUR).withMinute(0);
+        }
+        if (normalized.getHour() >= WORKDAY_END_HOUR) {
+            return normalized.plusDays(1).withHour(WORKDAY_START_HOUR).withMinute(0);
+        }
+        return normalized;
+    }
+
+    private int countAvailableCleaners(LocalDateTime slotStart, int durationWithTravel, long totalCleanerCount) {
+        LocalDateTime slotBusyUntil = slotStart.plusMinutes(durationWithTravel);
+        int reservedCleaners = 0;
+
+        for (Order existingOrder : findAll()) {
+            if (!blocksCleanerAvailability(existingOrder)) {
+                continue;
+            }
+
+            LocalDateTime existingStart = existingOrder.getAppointmentDate();
+            int existingDuration = existingOrder.getTotalTime() != null ? existingOrder.getTotalTime() : DEFAULT_SLOT_DURATION_MINUTES;
+            LocalDateTime existingBusyUntil = existingStart.plusMinutes(existingDuration + TRAVEL_TIME_MINUTES);
+
+            if (slotStart.isBefore(existingBusyUntil) && existingStart.isBefore(slotBusyUntil)) {
+                reservedCleaners += getReservedCleanerCount(existingOrder);
+            }
+        }
+
+        return Math.max(0, (int) totalCleanerCount - reservedCleaners);
+    }
+
+    private boolean blocksCleanerAvailability(Order order) {
+        if (order.getAppointmentDate() == null) {
+            return false;
+        }
+
+        OrderStatus status = order.getStatus();
+        return status != OrderStatus.CANCELLED && status != OrderStatus.COMPLETED;
+    }
+
+    private int getReservedCleanerCount(Order order) {
+        Integer requestedCleanerCount = order.getRequestedCleanerCount();
+        return requestedCleanerCount != null && requestedCleanerCount > 0 ? requestedCleanerCount : 1;
+    }
+
+    private boolean isCleanerAvailableForOrder(Cleaner cleaner, Order candidateOrder) {
+        if (candidateOrder.getCleaners() != null && candidateOrder.getCleaners().contains(cleaner)) {
+            return false;
+        }
+        if (candidateOrder.getAppointmentDate() == null) {
+            return false;
+        }
+
+        LocalDateTime candidateStart = candidateOrder.getAppointmentDate();
+        int candidateDuration = candidateOrder.getTotalTime() != null ? candidateOrder.getTotalTime() : DEFAULT_SLOT_DURATION_MINUTES;
+        LocalDateTime candidateBusyUntil = candidateStart.plusMinutes(candidateDuration + TRAVEL_TIME_MINUTES);
+
+        return findByCleanerId(cleaner.getId()).stream()
+                .filter(this::blocksCleanerAvailability)
+                .noneMatch(existingOrder -> overlaps(existingOrder, candidateStart, candidateBusyUntil));
+    }
+
+    private boolean overlaps(Order existingOrder, LocalDateTime candidateStart, LocalDateTime candidateBusyUntil) {
+        LocalDateTime existingStart = existingOrder.getAppointmentDate();
+        int existingDuration = existingOrder.getTotalTime() != null ? existingOrder.getTotalTime() : DEFAULT_SLOT_DURATION_MINUTES;
+        LocalDateTime existingBusyUntil = existingStart.plusMinutes(existingDuration + TRAVEL_TIME_MINUTES);
+
+        return candidateStart.isBefore(existingBusyUntil) && existingStart.isBefore(candidateBusyUntil);
+    }
 
     public Order createOrder(OrderCreationRequest request) {
         // Validate request
