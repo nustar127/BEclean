@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.JwtAuthenticationResponse;
 import com.clean.demo.dto.SignInRequest;
-import com.clean.demo.dto.SignUpRequest;
 import com.clean.demo.dto.SignUpCustomerRequest;
 import com.clean.demo.dto.SignUpCleanerRequest;
 import com.clean.demo.service.AuthenticationService;
@@ -24,10 +23,10 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/sign-up")
-    public ApiResponse<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
-        return authenticationService.signUp(request);
-    }
+    // @PostMapping("/sign-up")
+    // public ApiResponse<JwtAuthenticationResponse> signUp(@RequestBody @Valid SignUpRequest request) {
+    //     return authenticationService.signUp(request);
+    // }
 
     @PostMapping("/sign-up/customer")
     public ApiResponse<JwtAuthenticationResponse> signUpCustomer(@RequestBody @Valid SignUpCustomerRequest request) {

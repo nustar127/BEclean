@@ -23,7 +23,10 @@ public class CleanerResponse extends UserResponse {
                 .phone(user.getPhone())
                 .experience(user.getExperience())
                 .rating(user.getRating())
-                .role(user.getRole().name())
+                .roles(
+                        user.getRoles().stream()
+                                .map(Enum::name)
+                                .toList())
                 .build();
     }
 }

@@ -56,10 +56,7 @@ public class ServicesController {
 
     @PutMapping("/{id}")
     public ApiResponse<Service> changeService(@RequestBody Service newService, @PathVariable Long id) {
-        Service updated = serviceRepository.findById(id)
-                .map(service -> serviceRepository.save(serviceService.updateService(id, newService)))
-                .orElseGet(() -> serviceRepository.save(newService));
-
+        Service updated = serviceService.updateService(id, newService);
         return ApiResponse.success(updated, "Service updated successfully");
     }
 
