@@ -1,6 +1,5 @@
 package com.clean.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.OrderCheckRequest;
+import com.clean.demo.dto.OrderCreationRequest;
+import com.clean.demo.dto.OrderResponse;
 import com.clean.demo.entity.Cleaner;
-import com.clean.demo.entity.Order;
 import com.clean.demo.entity.OrderStatus;
-import com.clean.demo.repository.OrderRepository;
 import com.clean.demo.service.OrderService;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -26,48 +25,44 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @Autowired
-    private OrderRepository orderRepository;
-
     @GetMapping("")
     // @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Iterable<Order>> findAll() {
-        return ApiResponse.success(orderRepository.findAll(), "Founded");
+    public ApiResponse<Iterable<OrderResponse>> findAll() {
+        Iterable<OrderResponse> orders = orderService.findAll().stream()
+                .map(OrderResponse::fromOrder)
+                .toList();
+        return ApiResponse.success(orders, "Founded");
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<Order> findById(@PathVariable("id") Long id) {
-        return orderRepository.findById(id)
-                .map(order -> ApiResponse.success(order, "Founded"))
+    public ApiResponse<OrderResponse> findById(@PathVariable("id") Long id) {
+        return orderService.findById(id)
+                .map(order -> ApiResponse.success(OrderResponse.fromOrder(order), "Founded"))
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
     }
 
     @PostMapping("/{id}/add-cleaner")
-    public ApiResponse<Order> addCleanerToOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
-        Order updatedOrder = orderService.addCleaner(id, cleaner);
-        return ApiResponse.success(orderRepository.save(updatedOrder), "Cleaners updated");
+    public ApiResponse<OrderResponse> addCleanerToOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, cleaner)), "Cleaners updated");
     }
 
     @PostMapping("/{id}/claim")
-    public ApiResponse<Order> claimOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
-        Order updatedOrder = orderService.addCleaner(id, cleaner);
-        return ApiResponse.success(orderRepository.save(updatedOrder), "Order claimed by cleaner");
+    public ApiResponse<OrderResponse> claimOrder(@PathVariable("id") Long id, @RequestBody Cleaner cleaner) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, cleaner)), "Order claimed by cleaner");
     }
 
     @PostMapping("/{id}/change-status")
-    public ApiResponse<Order> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatus status) {
-        Order updatedOrder = orderService.changeStatus(id, status);
-        return ApiResponse.success(orderRepository.save(updatedOrder), "Status updated");
+    public ApiResponse<OrderResponse> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatus status) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.changeStatus(id, status)), "Status updated");
     }
 
-    @GetMapping("/available-slots")
+    @PostMapping("/available-slots")
     public ApiResponse<?> availableSlots(@RequestBody OrderCheckRequest request) {
         return ApiResponse.success(orderService.getAvailableSlots(request), "Available slots calculated");
     }
 
     @PostMapping("")
-    public ApiResponse<Order> newOrder(@RequestBody Order order) {
-        order.recalculateTotals();
-        return ApiResponse.success(orderRepository.save(order), "Order created");
+    public ApiResponse<OrderResponse> newOrder(@RequestBody OrderCreationRequest request) {
+        return ApiResponse.success(OrderResponse.fromOrder(orderService.createOrder(request)), "Order created");
     }
 }

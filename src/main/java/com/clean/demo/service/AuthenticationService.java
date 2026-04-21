@@ -11,7 +11,6 @@ import com.clean.demo.dto.JwtAuthenticationResponse;
 import com.clean.demo.dto.SignInRequest;
 import com.clean.demo.dto.SignUpCleanerRequest;
 import com.clean.demo.dto.SignUpCustomerRequest;
-import com.clean.demo.dto.SignUpRequest;
 import com.clean.demo.dto.UserResponse;
 import com.clean.demo.entity.Customer;
 import com.clean.demo.entity.Role;

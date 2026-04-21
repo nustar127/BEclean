@@ -10,9 +10,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCheckRequest {
+public class OrderCreationRequest {
     private List<CartItemDto> items;
     private Integer requestedCleanerCount = 1;
     private LocalDateTime appointmentDate;
     private String address;
+
+    private Long customerId;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
 }
