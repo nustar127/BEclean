@@ -37,7 +37,7 @@ public class ServicesController {
     @Autowired
     private ServiceRequirementRepository serviceReqRepository;
 
-    @GetMapping("")
+    @GetMapping
     @PreAuthorize("permitAll()") 
     public ApiResponse<Iterable<Service>> findAll() {
         return ApiResponse.success(serviceRepository.findAll(), "Founded");
@@ -51,47 +51,40 @@ public class ServicesController {
                 .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
     }
 
-    @PostMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
     public ApiResponse<Service> newService(@RequestBody Service service) {
         return ApiResponse.success(serviceRepository.save(service), "Service created");
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Service> changeService(@RequestBody Service newService, @PathVariable Long id) {
         Service updated = serviceService.updateService(id, newService);
         return ApiResponse.success(updated, "Service updated successfully");
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteService(@PathVariable Long id) {
         serviceRepository.deleteById(id);
         return ApiResponse.success(null, "Service deleted");
     }
 
-    @DeleteMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping
     public ApiResponse<Void> deleteServices(@RequestBody List<Long> ids) {
         serviceRepository.deleteAllById(ids);
         return ApiResponse.success(null, "Services deleted");
     }
 
     @GetMapping("/requirements")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Iterable<ServiceRequirement>> findAllRequirements() {
         return ApiResponse.success(serviceReqRepository.findAll(), "Founded");
     }
 
     @PostMapping("/requirements")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Iterable<ServiceRequirement>> newServiceReq(@RequestBody List<ServiceRequirement> requirements) {
         return ApiResponse.success(serviceReqRepository.saveAll(requirements), "Requirements saved");
     }
 
     @PutMapping("/requirements/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ServiceRequirement> changeServiceReq(@RequestBody Double amount, @PathVariable Long id) {
         return serviceReqRepository.findById(id)
                 .map(req -> {
@@ -102,7 +95,6 @@ public class ServicesController {
     }
 
     @DeleteMapping("/requirements/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteServiceReq(@PathVariable Long id) {
         serviceReqRepository.deleteById(id);
         return ApiResponse.success(null, "Requirement deleted");

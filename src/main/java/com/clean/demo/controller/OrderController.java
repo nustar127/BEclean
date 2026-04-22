@@ -27,6 +27,7 @@ public class OrderController {
     }
 
     @GetMapping("")
+    @PreAuthorize("permitAll()")
     public ApiResponse<Iterable<OrderResponse>> findAll() {
         Iterable<OrderResponse> orders = orderService.findAll().stream()
                 .map(OrderResponse::fromOrder)
@@ -35,6 +36,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ApiResponse<OrderResponse> findById(@PathVariable("id") Long id) {
         return orderService.findById(id)
                 .map(order -> ApiResponse.success(OrderResponse.fromOrder(order), "Founded"))
@@ -42,7 +44,6 @@ public class OrderController {
     }
 
     @GetMapping("/customer/{customerId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLEANER')")
     public ApiResponse<Iterable<OrderResponse>> findByCustomerId(@PathVariable("customerId") Long customerId) {
         Iterable<OrderResponse> orders = orderService.findByCustomerId(customerId).stream()
                 .map(OrderResponse::fromOrder)
@@ -51,7 +52,6 @@ public class OrderController {
     }
 
     @GetMapping("/cleaner/{cleanerId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLEANER')")
     public ApiResponse<Iterable<OrderResponse>> findByCleanerId(@PathVariable("cleanerId") Long cleanerId) {
         Iterable<OrderResponse> orders = orderService.findByCleanerId(cleanerId).stream()
                 .map(OrderResponse::fromOrder)
@@ -60,7 +60,6 @@ public class OrderController {
     }
 
     @GetMapping("/unassigned/{cleanerId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLEANER')")
     public ApiResponse<Iterable<OrderResponse>> findOrdersWithUnassignedCleanerSlots(@PathVariable("cleanerId") Long cleanerId) {
         Iterable<OrderResponse> orders = orderService.findOrdersWithUnassignedCleanerSlots(cleanerId).stream()
                 .map(OrderResponse::fromOrder)
@@ -69,23 +68,23 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/claim")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLEANER')")
     public ApiResponse<OrderResponse> claimOrder(@PathVariable("id") Long id, @RequestBody OrderClaimRequest request) {
         return ApiResponse.success(OrderResponse.fromOrder(orderService.addCleaner(id, request.getCleanerId())), "Order claimed by cleaner");
     }
 
     @PostMapping("/{id}/change-status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLEANER')")
     public ApiResponse<OrderResponse> changeStatus(@PathVariable("id") Long id, @RequestBody OrderStatusChangeRequest request) {
         return ApiResponse.success(OrderResponse.fromOrder(orderService.changeStatus(id, request.getStatus())), "Status updated");
     }
 
     @PostMapping("/available-slots")
+    @PreAuthorize("permitAll()")
     public ApiResponse<?> availableSlots(@RequestBody OrderCheckRequest request) {
         return ApiResponse.success(orderService.getAvailableSlots(request), "Available slots calculated");
     }
 
     @PostMapping("")
+    @PreAuthorize("permitAll()")
     public ApiResponse<OrderResponse> newOrder(@RequestBody OrderCreationRequest request) {
         return ApiResponse.success(OrderResponse.fromOrder(orderService.createOrder(request)), "Order created");
     }
