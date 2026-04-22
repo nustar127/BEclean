@@ -18,8 +18,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("")
-    // @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
     public ApiResponse<List<UserResponse>> findAll() {
         return ApiResponse.success(
                 userRepository.findAll().stream()

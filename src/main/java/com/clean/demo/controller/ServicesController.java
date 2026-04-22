@@ -3,6 +3,7 @@ package com.clean.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,20 +37,21 @@ public class ServicesController {
     @Autowired
     private ServiceRequirementRepository serviceReqRepository;
 
-    @GetMapping("")
-    // @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    @PreAuthorize("permitAll()") 
     public ApiResponse<Iterable<Service>> findAll() {
         return ApiResponse.success(serviceRepository.findAll(), "Founded");
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()") 
     public ApiResponse<Service> findById(@PathVariable("id") Long id) {
         return serviceRepository.findById(id)
                 .map(service -> ApiResponse.success(service, "Founded"))
                 .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
     }
 
-    @PostMapping("")
+    @PostMapping
     public ApiResponse<Service> newService(@RequestBody Service service) {
         return ApiResponse.success(serviceRepository.save(service), "Service created");
     }
@@ -66,7 +68,7 @@ public class ServicesController {
         return ApiResponse.success(null, "Service deleted");
     }
 
-    @DeleteMapping("")
+    @DeleteMapping
     public ApiResponse<Void> deleteServices(@RequestBody List<Long> ids) {
         serviceRepository.deleteAllById(ids);
         return ApiResponse.success(null, "Services deleted");

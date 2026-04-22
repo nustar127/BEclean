@@ -2,7 +2,6 @@ package com.clean.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
-//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,7 @@ public class InventoryController {
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    @GetMapping("")
+    @GetMapping
     public ApiResponse<Iterable<Inventory>> findAll() {
         return ApiResponse.success(inventoryRepository.findAll(), "Founded");
     }
@@ -39,7 +38,7 @@ public class InventoryController {
         return ApiResponse.success(inventoryRepository.save(inventory), "Item updated successfully");
     }
 
-    @PostMapping("")
+    @PostMapping
     public ApiResponse<Inventory> createInventory(@RequestBody Inventory inventory) {
         return ApiResponse.success(inventoryRepository.save(inventory), "Item created successfully");
     }
@@ -50,7 +49,7 @@ public class InventoryController {
         return ApiResponse.success(null, "Item deleted successfully");
     }
 
-    @DeleteMapping("")
+    @DeleteMapping
     public ApiResponse<Void> deleteInventories(@RequestBody Iterable<Long> ids) {
         inventoryRepository.deleteAllById(ids);
         return ApiResponse.success(null, "Selected items deleted successfully");
