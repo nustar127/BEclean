@@ -40,10 +40,15 @@ public class CartLine {
             return 0.0;
         }
 
-        double baseTotal = service.getPrice() * quantity;
+        double linePrice = service.getPrice();
+
         if (service.getDepedensOnArea() != null && area != null) {
-            return baseTotal * area;
+            double additionalArea = Math.max(0.0, area - service.getDepedensOnArea());
+            if (additionalArea > 0 && service.getPriceForAdditionalMeter() != null) {
+                linePrice += additionalArea * service.getPriceForAdditionalMeter();
+            }
         }
-        return baseTotal;
+
+        return linePrice * quantity;
     }
 }
