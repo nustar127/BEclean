@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -46,13 +45,13 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/inventory/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/uploads/images/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/services/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/users/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/orders/**")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_CLEANER")
+                        // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // .requestMatchers("/inventory/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers("/uploads/images/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers("/services/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers("/users/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers("/orders/**")
+                        // .hasAnyAuthority("ROLE_ADMIN", "ROLE_CLEANER")
                         .anyRequest().permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

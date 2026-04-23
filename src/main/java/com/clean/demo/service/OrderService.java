@@ -232,7 +232,6 @@ public class OrderService {
     }
 
     public Order createOrder(OrderCreationRequest request) {
-        // Validate request
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new IllegalArgumentException("Order must have at least one item");
         }
@@ -240,7 +239,6 @@ public class OrderService {
             throw new IllegalArgumentException("Either customerId or person details (email, firstName, lastName) must be provided");
         }
 
-        // Create or find customer/person
         Person customer;
         if (request.getCustomerId() != null) {
             customer = personRepository.findById(request.getCustomerId())
