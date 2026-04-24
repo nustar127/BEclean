@@ -1,6 +1,5 @@
 package com.clean.demo.controller;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +26,6 @@ public class OrderController {
     }
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
     public ApiResponse<Iterable<OrderResponse>> findAll() {
         Iterable<OrderResponse> orders = orderService.findAll().stream()
                 .map(OrderResponse::fromOrder)
@@ -36,7 +34,6 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
     public ApiResponse<OrderResponse> findById(@PathVariable("id") Long id) {
         return orderService.findById(id)
                 .map(order -> ApiResponse.success(OrderResponse.fromOrder(order), "Founded"))
@@ -78,13 +75,11 @@ public class OrderController {
     }
 
     @PostMapping("/available-slots")
-    @PreAuthorize("permitAll()")
     public ApiResponse<?> availableSlots(@RequestBody OrderCheckRequest request) {
         return ApiResponse.success(orderService.getAvailableSlots(request), "Available slots calculated");
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
     public ApiResponse<OrderResponse> newOrder(@RequestBody OrderCreationRequest request) {
         return ApiResponse.success(OrderResponse.fromOrder(orderService.createOrder(request)), "Order created");
     }
