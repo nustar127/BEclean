@@ -106,12 +106,7 @@ public class Order {
     }
 
     public void setItems(List<CartLine> items) {
-        this.items = items != null ? items : new ArrayList<>();
-        this.items.forEach(item -> {
-            if (item != null) {
-                item.setOrder(this);
-            }
-        });
+        this.items = items;
     }
 
     public void addItem(CartLine item) {
@@ -136,28 +131,9 @@ public class Order {
 
     public Double calculateTotalPrice() {
         return items.stream()
-                .map(this::calculateItemTotal)
+                .map(item -> item.getLineTotal())
                 .filter(price -> price != null)
                 .reduce(0.0, Double::sum);
-    }
-
-    private Double calculateItemTotal(CartLine item) {
-        if (item == null || item.getService() == null || item.getService().getPrice() == null) {
-            return 0.0;
-        }
-
-        int quantity = item.getQuantity() != null && item.getQuantity() > 0 ? item.getQuantity() : 1;
-        double linePrice = item.getService().getPrice();
-
-        if (item.getArea() != null
-                && item.getService().getDepedensOnArea() != null
-                && item.getService().getPriceForAdditionalMeter() != null) {
-            double includedArea = Math.max(0, item.getService().getDepedensOnArea());
-            double additionalArea = Math.max(0.0, item.getArea() - includedArea);
-            linePrice += additionalArea * item.getService().getPriceForAdditionalMeter();
-        }
-
-        return linePrice * quantity;
     }
 
     public Integer calculateBaseTotalTime() {
