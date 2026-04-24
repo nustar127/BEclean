@@ -7,17 +7,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.clean.demo.dto.CleanerAvailabilitySlot;
 import com.clean.demo.dto.OrderCheckRequest;
 import com.clean.demo.dto.OrderCreationRequest;
+import com.clean.demo.entity.Inventory;
 import com.clean.demo.entity.Order;
 import com.clean.demo.entity.OrderStatus;
 import com.clean.demo.entity.Service;
+import com.clean.demo.entity.ServiceRequirement;
 import com.clean.demo.entity.CartLine;
 import com.clean.demo.entity.Cleaner;
 import com.clean.demo.entity.Person;
 import com.clean.demo.repository.CleanerRepository;
+import com.clean.demo.repository.InventoryRepository;
 import com.clean.demo.repository.OrderRepository;
 import com.clean.demo.repository.ServiceRepository;
 import com.clean.demo.repository.PersonRepository;
@@ -42,6 +46,9 @@ public class OrderService {
 
     @Autowired
     private CleanerRepository cleanerRepository;
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
 
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
@@ -92,13 +99,48 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
+    @Transactional
     public Order changeStatus(Long id, OrderStatus status) {
         return orderRepository.findById(id)
                 .map(order -> {
+                    OrderStatus previousStatus = order.getStatus();
+                    if (previousStatus != OrderStatus.COMPLETED && status == OrderStatus.COMPLETED) {
+                        consumeInventoryForCompletedOrder(order);
+                    }
                     order.setStatus(status);
                     return orderRepository.save(order);
                 })
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+    }
+
+    private void consumeInventoryForCompletedOrder(Order order) {
+        if (order.getItems() == null) {
+            return;
+        }
+
+        for (CartLine item : order.getItems()) {
+            if (item == null || item.getService() == null || item.getService().getRequirments() == null) {
+                continue;
+            }
+
+            int quantity = item.getQuantity() != null && item.getQuantity() > 0 ? item.getQuantity() : 1;
+
+            for (ServiceRequirement requirement : item.getService().getRequirments()) {
+                if (requirement == null || requirement.getInventory() == null || requirement.getRequiredAmount() == null) {
+                    continue;
+                }
+
+                Inventory inventory = requirement.getInventory();
+                if (inventory.getUnit() != null && inventory.getUnit().equalsIgnoreCase("pcs")) {
+                    continue;
+                }
+
+                int currentAmount = inventory.getAmount() != null ? inventory.getAmount() : 0;
+                int amountToSubtract = (int) Math.round(requirement.getRequiredAmount() * quantity);
+                inventory.setAmount(currentAmount - amountToSubtract);
+                inventoryRepository.save(inventory);
+            }
+        }
     }
 
     public List<CleanerAvailabilitySlot> getAvailableSlots(OrderCheckRequest request) {
