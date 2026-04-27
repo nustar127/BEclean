@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -53,9 +55,15 @@ public class Service {
     @Column(name = "depedens_on_area")
     private @Nullable Integer depedensOnArea;
 
+    private Float priceForAdditionalMeter;
+
     @JsonIgnoreProperties("service")
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
     private List<ServiceRequirement> requirments = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(name = "service_categories", joinColumns = @JoinColumn(name = "service_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private List<Category> categories = new ArrayList<>();
 
     public Long getId() {
         return this.id;
@@ -137,4 +145,21 @@ public class Service {
     public void setType(String type) {
         this.type = type;
     }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Float getPriceForAdditionalMeter() {
+        return priceForAdditionalMeter;
+    }
+
+    public void setPriceForAdditionalMeter(Float priceForAdditionalMeter) {
+        this.priceForAdditionalMeter = priceForAdditionalMeter;
+    }
+
 }
