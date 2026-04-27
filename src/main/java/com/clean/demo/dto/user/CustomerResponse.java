@@ -1,4 +1,4 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.user;
 
 import com.clean.demo.entity.Customer;
 

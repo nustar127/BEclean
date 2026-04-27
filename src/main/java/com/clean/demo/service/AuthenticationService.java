@@ -8,10 +8,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.clean.demo.dto.JwtAuthenticationResponse;
-import com.clean.demo.dto.SignInRequest;
-import com.clean.demo.dto.SignUpCleanerRequest;
-import com.clean.demo.dto.SignUpCustomerRequest;
-import com.clean.demo.dto.UserResponse;
+import com.clean.demo.dto.auth.SignInRequest;
+import com.clean.demo.dto.auth.SignUpCleanerRequest;
+import com.clean.demo.dto.auth.SignUpCustomerRequest;
+import com.clean.demo.dto.user.CleanerResponse;
+import com.clean.demo.dto.user.CustomerResponse;
+import com.clean.demo.dto.user.UserResponse;
 import com.clean.demo.entity.Customer;
 import com.clean.demo.entity.Role;
 import com.clean.demo.entity.Cleaner;
@@ -19,8 +21,6 @@ import com.clean.demo.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import com.clean.demo.dto.ApiResponse;
-import com.clean.demo.dto.CleanerResponse;
-import com.clean.demo.dto.CustomerResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -29,24 +29,6 @@ public class AuthenticationService {
         private final JwtService jwtService;
         private final PasswordEncoder passwordEncoder;
         private final AuthenticationManager authenticationManager;
-
-        // public ApiResponse<JwtAuthenticationResponse> signUp(SignUpRequest request) {
-
-        //         var user = User.builder()
-        //                         .username(request.getUsername())
-        //                         .email(request.getEmail())
-        //                         .firstName(request.getFirstName())
-        //                         .lastName(request.getLastName())
-        //                         .password(passwordEncoder.encode(request.getPassword()))
-        //                         .role(Role.ROLE_ADMIN)
-        //                         .build();
-
-        //         userService.create(user);
-        //         UserResponse userDto = UserResponse.createUser(user);
-
-        //         var jwt = jwtService.generateToken(user);
-        //         return ApiResponse.success(new JwtAuthenticationResponse(jwt, userDto), "User signed up");
-        // }
 
         public ApiResponse<JwtAuthenticationResponse> signUpCustomer(SignUpCustomerRequest request) {
 

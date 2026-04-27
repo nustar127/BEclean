@@ -19,7 +19,5 @@ public class MvcConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(resourceLocation);
-                
-        System.out.println("Картинки раздаются из: " + resourceLocation);
     }
 }

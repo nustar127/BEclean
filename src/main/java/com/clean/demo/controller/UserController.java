@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
-import com.clean.demo.dto.UserResponse;
+import com.clean.demo.dto.user.UserResponse;
 import com.clean.demo.repository.UserRepository;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +13,7 @@ import lombok.extern.jackson.Jacksonized;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class SignUpCustomerRequest extends SignUpRequest {
-    private String address;
+public class SignUpCleanerRequest extends SignUpRequest {
+    private Double rating;
+    private Double experience;
 }

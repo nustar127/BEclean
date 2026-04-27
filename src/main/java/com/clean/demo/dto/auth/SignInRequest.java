@@ -1,4 +1,4 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,6 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.user;
 
-import java.util.List;
-
-import com.clean.demo.entity.User;
+import com.clean.demo.entity.Cleaner;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,18 +9,20 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class UserResponse extends PersonResponse {
-    private String username;
-    private List<String> roles;
+public class CleanerResponse extends UserResponse {
+    private Double rating;
+    private Double experience;
 
-    public static UserResponse createUser(User user) {
-        return UserResponse.builder()
+    public static CleanerResponse createCustomer(Cleaner user) {
+        return CleanerResponse.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .phone(user.getPhone())
                 .email(user.getEmail())
-                .username(user.getUsername())
+                .phone(user.getPhone())
+                .experience(user.getExperience())
+                .rating(user.getRating())
                 .roles(
                         user.getRoles().stream()
                                 .map(Enum::name)
