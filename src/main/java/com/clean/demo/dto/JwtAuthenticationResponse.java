@@ -1,5 +1,7 @@
 package com.clean.demo.dto;
 
+import com.clean.demo.dto.user.UserResponse;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

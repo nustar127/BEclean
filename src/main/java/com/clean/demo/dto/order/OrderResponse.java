@@ -1,8 +1,12 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.order;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.clean.demo.dto.user.CleanerResponse;
+import com.clean.demo.dto.user.CustomerResponse;
+import com.clean.demo.dto.user.PersonResponse;
+import com.clean.demo.dto.user.UserResponse;
 import com.clean.demo.entity.Customer;
 import com.clean.demo.entity.Order;
 import com.clean.demo.entity.Person;

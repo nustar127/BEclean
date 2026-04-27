@@ -1,4 +1,4 @@
-package com.clean.demo.dto;
+package com.clean.demo.dto.order;
 
 import com.clean.demo.entity.OrderStatus;
 

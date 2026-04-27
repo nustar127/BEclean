@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.clean.demo.dto.CleanerAvailabilitySlot;
-import com.clean.demo.dto.OrderCheckRequest;
-import com.clean.demo.dto.OrderCreationRequest;
+import com.clean.demo.dto.order.CleanerAvailabilitySlot;
+import com.clean.demo.dto.order.OrderCheckRequest;
+import com.clean.demo.dto.order.OrderCreationRequest;
 import com.clean.demo.entity.Inventory;
 import com.clean.demo.entity.Order;
 import com.clean.demo.entity.OrderStatus;

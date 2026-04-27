@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.dto.JwtAuthenticationResponse;
-import com.clean.demo.dto.SignInRequest;
-import com.clean.demo.dto.SignUpCustomerRequest;
-import com.clean.demo.dto.SignUpCleanerRequest;
+import com.clean.demo.dto.auth.SignInRequest;
+import com.clean.demo.dto.auth.SignUpCleanerRequest;
+import com.clean.demo.dto.auth.SignUpCustomerRequest;
 import com.clean.demo.service.AuthenticationService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +33,7 @@ public class AuthController {
         return authenticationService.signUpCleaner(request);
     }
 
+    @PostMapping("/sign-in")
     public ApiResponse<JwtAuthenticationResponse> signIn(@RequestBody @Valid SignInRequest request) {
         return authenticationService.signIn(request);
     }

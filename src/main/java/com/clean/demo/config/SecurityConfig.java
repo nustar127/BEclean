@@ -48,11 +48,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/services", "/services/{id}").permitAll()
-                        .requestMatchers("/services/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/inventory/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/uploads/images/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/users/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/analytics/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/services/**", "/inventory/**", "/uploads/images/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/users/**", "/analytics/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/orders", "/orders/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/orders", "/orders/available-slots").permitAll()
                         .requestMatchers("/orders/**")

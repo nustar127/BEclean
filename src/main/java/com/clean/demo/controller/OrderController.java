@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clean.demo.dto.ApiResponse;
-import com.clean.demo.dto.OrderCheckRequest;
-import com.clean.demo.dto.OrderClaimRequest;
-import com.clean.demo.dto.OrderCreationRequest;
-import com.clean.demo.dto.OrderResponse;
-import com.clean.demo.dto.OrderStatusChangeRequest;
+import com.clean.demo.dto.order.OrderCheckRequest;
+import com.clean.demo.dto.order.OrderClaimRequest;
+import com.clean.demo.dto.order.OrderCreationRequest;
+import com.clean.demo.dto.order.OrderResponse;
+import com.clean.demo.dto.order.OrderStatusChangeRequest;
 import com.clean.demo.service.OrderService;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -25,7 +25,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("")
+    @GetMapping
     public ApiResponse<Iterable<OrderResponse>> findAll() {
         Iterable<OrderResponse> orders = orderService.findAll().stream()
                 .map(OrderResponse::fromOrder)
@@ -79,7 +79,7 @@ public class OrderController {
         return ApiResponse.success(orderService.getAvailableSlots(request), "Available slots calculated");
     }
 
-    @PostMapping("")
+    @PostMapping
     public ApiResponse<OrderResponse> newOrder(@RequestBody OrderCreationRequest request) {
         return ApiResponse.success(OrderResponse.fromOrder(orderService.createOrder(request)), "Order created");
     }
