@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Sort;
 
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.entity.Inventory;
@@ -22,7 +23,7 @@ public class InventoryController {
 
     @GetMapping
     public ApiResponse<Iterable<Inventory>> findAll() {
-        return ApiResponse.success(inventoryRepository.findAll(), "Founded");
+        return ApiResponse.success(inventoryRepository.findAll(Sort.by(Sort.Direction.ASC, "id")), "Founded");
     }
 
     @GetMapping("/{id}")

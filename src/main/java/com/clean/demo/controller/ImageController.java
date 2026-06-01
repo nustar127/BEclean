@@ -1,5 +1,7 @@
 package com.clean.demo.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +15,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 import com.clean.demo.dto.ApiResponse;
 import com.clean.demo.entity.Image;
 import com.clean.demo.repository.ImageRepository;
 import com.clean.demo.service.ImageService;
 
-import jakarta.annotation.Nullable;
-
+import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -47,7 +51,7 @@ public class ImageController {
 
     @GetMapping
     public ApiResponse<Iterable<Image>> findAll() {
-        return ApiResponse.success(imageRepository.findAll(), "Images founded");
+        return ApiResponse.success(imageRepository.findAll(Sort.by(Sort.Direction.ASC, "id")), "Images founded");
     }
 
     @GetMapping("/{id}")
@@ -57,19 +61,49 @@ public class ImageController {
                 .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
     }
 
-    @PostMapping
-    public ApiResponse<Image> uploadImage(@RequestParam("file") MultipartFile file, @Nullable String alt) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<List<Image>> uploadImage(
+            @RequestParam(value = "file", required = false) List<MultipartFile> fileParts,
+            @RequestParam(value = "files", required = false) List<MultipartFile> filesParts,
+            @RequestParam(required = false) String alt) {
         try {
-            String filePath = saveImage(file);
+            List<MultipartFile> files = collectFiles(fileParts, filesParts);
+            List<Image> savedImages = new ArrayList<>();
+            for (MultipartFile file : files) {
+                String filePath = saveImage(file);
 
-            Image image = new Image();
-            image.setAlt(alt);
-            image.setFilename(filePath);
+                Image image = new Image();
+                image.setAlt(alt);
+                image.setFilename(filePath);
 
-            return ApiResponse.success(imageRepository.save(image), "Image uploaded successfully");
+                savedImages.add(imageRepository.save(image));
+            }
+
+            return ApiResponse.success(savedImages, "Images uploaded successfully");
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file: " + e.getMessage());
         }
+    }
+
+    private List<MultipartFile> collectFiles(List<MultipartFile> fileParts, List<MultipartFile> filesParts) {
+        List<MultipartFile> files = new ArrayList<>();
+        if (fileParts != null) {
+            files.addAll(fileParts);
+        }
+        if (filesParts != null) {
+            files.addAll(filesParts);
+        }
+
+        files = files.stream()
+                .filter(Objects::nonNull)
+                .filter(file -> !file.isEmpty())
+                .toList();
+
+        if (files.isEmpty()) {
+            throw new IllegalArgumentException("At least one image file is required");
+        }
+
+        return files;
     }
 
     private String saveImage(MultipartFile file) throws IOException {
@@ -79,7 +113,11 @@ public class ImageController {
         }
 
         String identifier = UUID.randomUUID().toString();
-        String fileName = identifier + "_" + file.getOriginalFilename();
+        String originalFilename = StringUtils.cleanPath(Objects.toString(file.getOriginalFilename(), ""));
+        String safeFilename = StringUtils.hasText(originalFilename)
+                ? Paths.get(originalFilename.replace("\\", "/")).getFileName().toString()
+                : "image";
+        String fileName = identifier + "_" + safeFilename;
 
         Files.copy(file.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
